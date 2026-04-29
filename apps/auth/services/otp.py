@@ -1,5 +1,4 @@
-import random
-import string
+import secrets
 from datetime import timedelta
 
 from django.utils import timezone
@@ -13,7 +12,7 @@ RATE_LIMIT_WINDOW_MINUTES = 5
 
 
 def _generate_code() -> str:
-    return "".join(random.choices(string.digits, k=4))
+    return f"{secrets.randbelow(10_000):04d}"
 
 
 def is_rate_limited(phone: str) -> bool:

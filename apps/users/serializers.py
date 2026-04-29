@@ -31,11 +31,6 @@ class ProfileReadSerializer(serializers.ModelSerializer):
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(
-        required=False,
-        allow_null=True,
-        validators=[validate_email_domain],
-    )
     # country = serializers.CharField(
     #     required=False,
     #     allow_blank=True,
@@ -45,15 +40,28 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "avatar", "country"]
+        fields = ["first_name", "last_name", "avatar", "country"]
 
-    def validate_email(self, value):
-        if value is None:
-            return value
-        qs = User.objects.exclude(pk=self.instance.pk).filter(email=value)
-        if qs.exists():
-            raise serializers.ValidationError("Bu email allaqachon band.")
-        return value
+    def validate(self, attrs):
+        if "email" in self.initial_data:
+            raise serializers.ValidationError(
+                {"email": "Emailni yangilash uchun /profile/email/request/ endpointidan foydalaning."}
+            )
+        return attrs
 
     def validate_country(self, value: str) -> str:
         return value.upper() if value else value
+
+
+class EmailChangeRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(validators=[validate_email_domain])
+
+
+class EmailChangeConfirmSerializer(serializers.Serializer):
+    email = serializers.EmailField(validators=[validate_email_domain])
+    code = serializers.CharField(min_length=6, max_length=6)
+
+    def validate_code(self, value: str) -> str:
+        if not value.isdigit():
+            raise serializers.ValidationError("Kod faqat raqamlardan iborat bo'lishi kerak.")
+        return value

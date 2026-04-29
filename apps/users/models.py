@@ -98,3 +98,36 @@ class User(AbstractBaseUser, PermissionsMixin):
                 or self.phone
                 or str(self.id)
         )
+
+
+class EmailChangeRequest(models.Model):
+    """Pending email change confirmation code for a user."""
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="email_change_requests",
+    )
+    email = models.EmailField()
+    code_hash = models.CharField(max_length=128)
+    expires_at = models.DateTimeField()
+    attempts = models.PositiveSmallIntegerField(default=0)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "email_change_requests"
+        indexes = [
+            models.Index(fields=["user", "is_used", "expires_at"]),
+            models.Index(fields=["email", "is_used"]),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"EmailChangeRequest({self.user_id}, {self.email})"

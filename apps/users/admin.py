@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from .models import User
+from .models import EmailChangeRequest, User
 
 
 @admin.register(User)
@@ -25,3 +25,12 @@ class UserAdmin(BaseUserAdmin):
             "fields": ("phone", "email", "password1", "password2"),
         }),
     )
+
+
+@admin.register(EmailChangeRequest)
+class EmailChangeRequestAdmin(admin.ModelAdmin):
+    list_display = ("user", "email", "is_used", "attempts", "expires_at", "created_at")
+    list_filter = ("is_used", "created_at", "expires_at")
+    search_fields = ("user__phone", "user__email", "email")
+    readonly_fields = ("id", "user", "email", "code_hash", "attempts", "is_used", "created_at", "used_at")
+    ordering = ("-created_at",)

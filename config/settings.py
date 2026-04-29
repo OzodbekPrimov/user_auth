@@ -196,3 +196,20 @@ GOOGLE_AUTH = {
 # Telegram OTP
 TELEGRAM_BOT_TOKEN = config('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_CHAT_ID = config('TELEGRAM_CHAT_ID', default='')
+
+# Email / SMTP
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.smtp.EmailBackend",
+)
+EMAIL_HOST = config("EMAIL_HOST", default="")
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = config_bool("EMAIL_USE_TLS", default=True)
+EMAIL_USE_SSL = config_bool("EMAIL_USE_SSL", default=False)
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
+
+_smtp_from_name = config("SMTP_FROM_NAME", default="")
+_smtp_from_email = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+DEFAULT_FROM_EMAIL = f"{_smtp_from_name} <{_smtp_from_email}>" if _smtp_from_name else _smtp_from_email
